@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kevin &amp; May are getting married</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --plum: #2b1b3d;
+    --marigold: #f2b84b;
+    --on-plum: #f3eefb;
+    --on-plum-muted: #c9bde0;
+
+    --page: #2b1b3d;
+    --stage-bg: #2b1b3d;
+    --paper: #fffdff;
+    --ink: #2b1b3d;
+    --ink-muted: #5d4d78;
+    --line: #ddd3ee;
+
+    --env: #ece3fa;
+    --env-flap: #dfd2f4;
+    --env-inside: #b9a6dc;
+    --env-liner: #cdbdea;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #140b1d;
+      --stage-bg: #140b1d;
+      --paper: #2a1b3d;
+      --ink: #f3eefb;
+      --ink-muted: #bdb0d6;
+      --line: #46335f;
+      --env: #5a4181;
+      --env-flap: #684e92;
+      --env-inside: #33214d;
+      --env-liner: #432d62;
+    }
+  }
+  :root[data-theme="dark"] {
+    --page: #140b1d;
+    --stage-bg: #140b1d;
+    --paper: #2a1b3d;
+    --ink: #f3eefb;
+    --ink-muted: #bdb0d6;
+    --line: #46335f;
+    --env: #5a4181;
+    --env-flap: #684e92;
+    --env-inside: #33214d;
+    --env-liner: #432d62;
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); background: var(--page); }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+  h1, h2, h3 { font-family: "Fraunces", Georgia, "Times New Roman", serif; font-weight: 300; margin: 0; }
+  a:focus-visible, button:focus-visible { outline: 3px solid var(--marigold); outline-offset: 3px; }
+
+  /* Wax seal, shared by envelope and letter */
+  .wax {
+    position: relative;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f8d27d, #f2b84b 45%, #d9962a);
+    box-shadow: inset 0 -3px 6px rgba(120,70,0,.35), 0 3px 10px rgba(0,0,0,.4);
+    color: var(--plum);
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic;
+    font-weight: 500;
+    letter-spacing: .02em;
+  }
+  .wax::after {
+    content: ""; position: absolute; inset: 7px; border-radius: 50%;
+    border: 1.5px dashed rgba(43,27,61,.35);
+  }
+
+  /* ---------- Envelope stage ---------- */
+  .stage {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: calc(2rem + env(safe-area-inset-top, 0px)) 1.5rem calc(2rem + env(safe-area-inset-bottom, 0px));
+    background: radial-gradient(ellipse at 50% 45%, rgba(255,255,255,.07), transparent 60%), var(--stage-bg);
+    color: var(--on-plum);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+  .stage.done { opacity: 0; transform: scale(1.06); pointer-events: none; }
+
+  .envelope {
+    --w: min(88vw, 26rem);
+    position: relative;
+    width: var(--w);
+    aspect-ratio: 3 / 2;
+    perspective: 1200px;
+    cursor: pointer;
+    margin-top: 6rem;
+  }
+  .env-back {
+    position: absolute; inset: 0; z-index: 0;
+    background: var(--env-inside);
+    border-radius: 6px;
+    box-shadow: 0 24px 50px rgba(0,0,0,.45);
+  }
+  .peek {
+    position: absolute; z-index: 2;
+    left: 6%; right: 6%; top: 8%; height: 86%;
+    background: var(--paper);
+    color: var(--ink);
+    border-radius: 3px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; gap: .25rem;
+    transition: transform 1s cubic-bezier(.3,.7,.2,1);
+    box-shadow: 0 -2px 10px rgba(0,0,0,.15);
+  }
+  .peek .p1 { font-size: .95rem; color: var(--ink-muted); }
+  .peek .p2 { font-family: "Fraunces", Georgia, serif; font-size: clamp(1.6rem, 7vw, 2.2rem); line-height: 1.1; }
+  .peek .p3 { font-size: .95rem; color: var(--ink-muted); }
+  .envelope.rise .peek { transform: translateY(-58%); }
+
+  .front {
+    position: absolute; inset: 0; z-index: 3;
+    background: var(--env);
+    clip-path: polygon(0 0, 50% 56%, 100% 0, 100% 100%, 0 100%);
+    border-radius: 6px;
+  }
+  .front-text {
+    position: absolute; left: 0; right: 0; bottom: 11%; z-index: 3;
+    text-align: center; pointer-events: none;
+    font-family: "Fraunces", Georgia, serif; font-style: italic; font-weight: 300;
+    font-size: clamp(1.1rem, 4.5vw, 1.35rem);
+    color: var(--ink);
+  }
+  :root[data-theme="dark"] .front-text { color: var(--on-plum); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .front-text { color: var(--on-plum); } }
+
+  .flap {
+    position: absolute; z-index: 4; top: 0; left: 0; width: 100%; height: 56%;
+    background: var(--env-flap);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top center;
+    transition: transform .7s ease .2s, background .3s ease .5s;
+  }
+  .envelope.open .flap { transform: rotateX(180deg); background: var(--env-liner); }
+  .envelope.flap-back .flap { z-index: 1; }
+
+  .seal {
+    position: absolute; z-index: 6;
+    left: 50%; top: 56%;
+    width: 4.2rem; height: 4.2rem;
+    margin: -2.1rem 0 0 -2.1rem;
+    border: 0; padding: 0; cursor: pointer;
+    font-size: 1.25rem;
+    transition: transform .35s ease, opacity .3s ease;
+  }
+  .seal::before {
+    content: ""; position: absolute; inset: -4px; border-radius: 50%;
+    border: 2px solid rgba(242,184,75,.75);
+  }
+  .envelope.open .seal { transform: scale(.3) rotate(25deg); opacity: 0; pointer-events: none; }
+
+  .hint { margin: 2.25rem 0 0; color: var(--on-plum-muted); text-align: center; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .seal::before { animation: ring 2.2s ease-out infinite; }
+    @keyframes ring { from { transform: scale(1); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+  }
+
+  /* ---------- The letter ---------- */
+  .letter { display: none; padding: 3.5rem 1rem 3rem; }
+  .letter.show { display: block; }
+  @media (prefers-reduced-motion: no-preference) {
+    .letter.show .sheet { animation: unfold 1s cubic-bezier(.2,.7,.2,1) both; }
+    @keyframes unfold { from { opacity: 0; transform: translateY(30px) scale(.97); } to { opacity: 1; transform: none; } }
+  }
+  .sheet {
+    position: relative;
+    max-width: 40rem; margin: 0 auto;
+    background: var(--paper);
+    border-radius: 4px;
+    padding: clamp(3rem, 8vw, 4.5rem) clamp(1.5rem, 7vw, 3.5rem) clamp(2rem, 6vw, 3rem);
+    box-shadow: 0 24px 60px rgba(0,0,0,.4);
+  }
+  .sheet .wax {
+    position: absolute; top: -1.75rem; left: 50%; margin-left: -1.75rem;
+    width: 3.5rem; height: 3.5rem; font-size: 1.05rem;
+  }
+  .sheet .wax::after { inset: 5px; }
+
+  .intro { text-align: center; }
+  .together { color: var(--ink-muted); margin: 0 0 1rem; }
+  .names {
+    font-size: clamp(3rem, 14vw, 5.5rem);
+    line-height: .98; letter-spacing: -0.02em;
+    font-variation-settings: "opsz" 144;
+    outline: none;
+  }
+  .names .amp { display: block; font-style: italic; color: #c98a14; font-size: .45em; margin: .1em 0; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .names .amp { color: var(--marigold); } }
+  :root[data-theme="dark"] .names .amp { color: var(--marigold); }
+  .invite-line { margin: 1.25rem 0 0; color: var(--ink-muted); }
+  .when { margin: 1.5rem 0 0; font-family: "Fraunces", Georgia, serif; font-size: clamp(1.2rem, 4.5vw, 1.55rem); }
+  .where { margin: .2rem 0 0; color: var(--ink-muted); }
+
+  .countdown { display: flex; justify-content: center; gap: clamp(.75rem, 4vw, 1.75rem); margin: 2rem 0 0; padding: 0; list-style: none; }
+  .countdown li { min-width: 3.4rem; text-align: center; }
+  .countdown strong {
+    display: block; font-family: "Fraunces", Georgia, serif; font-weight: 300;
+    font-size: clamp(1.7rem, 7vw, 2.4rem); line-height: 1; font-variant-numeric: tabular-nums;
+  }
+  .countdown span { font-size: .85rem; color: var(--ink-muted); }
+
+  .part { margin-top: 2.75rem; padding-top: 2.5rem; border-top: 1px solid var(--line); }
+  .part h2 { font-size: clamp(1.6rem, 5.5vw, 2.1rem); line-height: 1.15; margin-bottom: 1rem; }
+  .part p { margin: 0 0 1rem; }
+  .sign { font-family: "Fraunces", Georgia, serif; font-style: italic; font-weight: 300; font-size: 1.45rem; margin-top: 1.5rem !important; }
+
+  .detail-grid { display: grid; gap: 2rem; }
+  @media (min-width: 600px) { .detail-grid { grid-template-columns: 1fr 1fr; } }
+  .detail-grid h3 { font-size: 1.3rem; font-weight: 500; margin-bottom: .4rem; }
+  .detail-grid p { margin: 0 0 .5rem; color: var(--ink-muted); }
+  .detail-grid a { color: var(--ink); text-underline-offset: 3px; }
+
+  .timeline { list-style: none; margin: 1.5rem 0 0; padding: 0 0 0 1.5rem; border-left: 2px solid var(--line); }
+  .timeline li { position: relative; padding: 0 0 1.5rem 1.25rem; }
+  .timeline li:last-child { padding-bottom: 0; }
+  .timeline li::before {
+    content: ""; position: absolute; left: calc(-1.5rem - 7px); top: .45rem;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--marigold); border: 2px solid var(--paper); box-sizing: content-box;
+  }
+  .timeline time { font-weight: 600; display: block; }
+  .timeline p { margin: 0; color: var(--ink-muted); }
+
+  .rsvp {
+    margin-top: 2.75rem; padding: 2.5rem 1.5rem; text-align: center;
+    background: var(--plum); color: var(--on-plum); border-radius: 4px;
+  }
+  .rsvp h2 { color: var(--on-plum); font-size: clamp(1.6rem, 5.5vw, 2.1rem); margin-bottom: .75rem; }
+  .rsvp p { color: var(--on-plum-muted); max-width: 28rem; margin: 0 auto; }
+  .choices { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: center; margin-top: 1.75rem; }
+  .choices a { padding: .8rem 1.6rem; border-radius: 999px; text-decoration: none; font-weight: 600; }
+  .choices .yes { background: var(--marigold); color: var(--plum); }
+  .choices .no { border: 1.5px solid var(--on-plum-muted); color: var(--on-plum); }
+
+  .foot { text-align: center; margin: 2.5rem 0 0; color: var(--ink-muted); font-size: .95rem; }
+</style>
+</head>
+<body>
+
+<!-- Envelope -->
+<div class="stage" id="stage" role="dialog" aria-label="Wedding invitation envelope">
+  <div class="envelope" id="env">
+    <div class="env-back"></div>
+    <div class="peek" aria-hidden="true">
+      <span class="p1">You are invited</span>
+      <span class="p2">Kevin &amp; May</span>
+      <span class="p3">19 December 2026</span>
+    </div>
+    <div class="front"></div>
+    <div class="front-text">To our dear guest</div>
+    <div class="flap"></div>
+    <button class="seal wax" id="seal" type="button" aria-label="Open the envelope">K&amp;M</button>
+  </div>
+  <p class="hint">Tap the seal to open</p>
+</div>
+
+<!-- Letter -->
+<main class="letter" id="letter">
+  <article class="sheet">
+    <div class="wax" aria-hidden="true">K&amp;M</div>
+
+    <header class="intro">
+      <p class="together">Together with their families</p>
+      <h1 class="names" id="names" tabindex="-1">Kevin <span class="amp">&amp;</span> May</h1>
+      <p class="invite-line">invite you to celebrate their wedding</p>
+      <p class="when">Saturday, 19 December 2026 at 4:00 PM</p>
+      <p class="where">The Garden Pavilion, Your City</p>
+      <ul class="countdown" aria-label="Time until the wedding">
+        <li><strong id="d">--</strong><span>days</span></li>
+        <li><strong id="h">--</strong><span>hours</span></li>
+        <li><strong id="m">--</strong><span>minutes</span></li>
+        <li><strong id="s">--</strong><span>seconds</span></li>
+      </ul>
+    </header>
+
+    <section class="part">
+      <p>Dear friend,</p>
+      <p>We would be so happy to have you with us as we say "I do", surrounded by the people we love most.</p>
+      <p>Come for the ceremony, stay for the dinner, and dance with us until the lights go down.</p>
+      <p class="sign">With love, Kevin &amp; May</p>
+    </section>
+
+    <section class="part">
+      <h2>Where and when</h2>
+      <div class="detail-grid">
+        <div>
+          <h3>Ceremony and reception</h3>
+          <p>Saturday, 19 December 2026<br>Guests arrive from 3:30 PM</p>
+          <p>The Garden Pavilion<br>123 Blossom Road, Your City</p>
+          <p><a href="https://www.google.com/maps/search/?api=1&amp;query=The+Garden+Pavilion" target="_blank" rel="noopener">Open in maps</a></p>
+        </div>
+        <div>
+          <h3>Good to know</h3>
+          <p>Dress code: garden formal. Think soft colors, and flat shoes if you plan to dance on the lawn.</p>
+          <p>Parking is available on site. Rooms are held at a nearby hotel until 1 November.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="part">
+      <h2>The day, hour by hour</h2>
+      <ol class="timeline">
+        <li><time>3:30 PM</time><p>Guests arrive, welcome drinks on the terrace</p></li>
+        <li><time>4:00 PM</time><p>Ceremony</p></li>
+        <li><time>5:00 PM</time><p>Cocktail hour and photos</p></li>
+        <li><time>6:30 PM</time><p>Dinner and toasts</p></li>
+        <li><time>8:30 PM</time><p>First dance, then the floor is yours</p></li>
+        <li><time>11:00 PM</time><p>Last song and farewell</p></li>
+      </ol>
+    </section>
+
+    <section class="rsvp" id="rsvp">
+      <h2>Will you celebrate with us?</h2>
+      <p>Please let us know by 1 November 2026. Tell us how many guests are coming and any food needs.</p>
+      <div class="choices">
+        <a class="yes" href="mailto:rsvp@example.com?subject=RSVP%20-%20Joyfully%20accepts&amp;body=Name(s)%3A%0AGuests%3A%0AFood%20needs%3A">Joyfully accept</a>
+        <a class="no" href="mailto:rsvp@example.com?subject=RSVP%20-%20Regretfully%20declines&amp;body=Name(s)%3A">Regretfully decline</a>
+      </div>
+    </section>
+
+    <p class="foot">Kevin &amp; May · 19.12.2026</p>
+  </article>
+</main>
+
+<script>
+  (function () {
+    var stage = document.getElementById("stage");
+    var env = document.getElementById("env");
+    var letter = document.getElementById("letter");
+    var names = document.getElementById("names");
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var opened = false;
+
+    function reveal() {
+      letter.classList.add("show");
+      stage.classList.add("done");
+      window.scrollTo(0, 0);
+      setTimeout(function () {
+        stage.hidden = true;
+        names.focus({ preventScroll: true });
+      }, reduce ? 0 : 700);
+    }
+
+    env.addEventListener("click", function () {
+      if (opened) return;
+      opened = true;
+      env.classList.add("open");
+      if (reduce) { reveal(); return; }
+      setTimeout(function () { env.classList.add("flap-back"); }, 550);
+      setTimeout(function () { env.classList.add("rise"); }, 900);
+      setTimeout(reveal, 2200);
+    });
+
+    // Countdown. Wedding start time is local to the viewer.
+    var target = new Date(2026, 11, 19, 16, 0, 0).getTime();
+    var el = { d: document.getElementById("d"), h: document.getElementById("h"),
+               m: document.getElementById("m"), s: document.getElementById("s") };
+    function pad(n) { return n < 10 ? "0" + n : String(n); }
+    function tick() {
+      var sec = Math.floor(Math.max(0, target - Date.now()) / 1000);
+      el.d.textContent = Math.floor(sec / 86400);
+      el.h.textContent = pad(Math.floor(sec % 86400 / 3600));
+      el.m.textContent = pad(Math.floor(sec % 3600 / 60));
+      el.s.textContent = pad(sec % 60);
+    }
+    tick();
+    setInterval(tick, 1000);
+  })();
+</script>
+</body>
+</html>
